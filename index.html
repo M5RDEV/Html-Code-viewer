@@ -4,148 +4,477 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محرر أكواد تفاعلي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --bg-light: #f8f9fa;
+            --text-light: #212529;
+            --border-light: #dee2e6;
+            --editor-bg-light: #f9f9f9;
+            --bg-dark: #212529;
+            --text-dark: #f8f9fa;
+            --border-dark: #495057;
+            --editor-bg-dark: #2d3748;
+            --success-color: #38b000;
+            --danger-color: #d90429;
+            --tab-active-light: #ffffff;
+            --tab-active-dark: #343a40;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
-            background-color: #f4f4f4;
             padding: 20px;
+            background-color: var(--bg-light);
+            color: var(--text-light);
         }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
         .container {
             max-width: 1200px;
             margin: auto;
             background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        .editor-container {
+
+        body.dark-mode .container {
+            background: var(--bg-dark);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
             display: flex;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .header {
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: var(--tab-active-dark);
+            border: 1px solid var(--border-dark);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+            background-color: #e9ecef;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        body.dark-mode .tabs {
+            background-color: #343a40;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: #e9ecef;
+            position: relative;
+            display: flex;
+            align-items: center;
             gap: 10px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
         }
-        .editor {
-            flex: 1;
-            min-width: 30%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            background: #fff;
+
+        .tab.active {
+            background-color: var(--tab-active-light);
+            border-bottom: 3px solid var(--primary-color);
         }
+
+        body.dark-mode .tab {
+            background-color: #343a40;
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .tab.active {
+            background-color: var(--tab-active-dark);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .tab .tab-icon {
+            font-size: 16px;
+        }
+
+        .tab .delete-btn {
+            font-size: 14px;
+            color: #adb5bd;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab .delete-btn:hover {
+            color: var(--danger-color);
+            background-color: rgba(217, 4, 41, 0.1);
+        }
+
+        .editor-container {
+            display: none;
+            padding: 15px;
+            background-color: var(--tab-active-light);
+            border: 1px solid var(--border-light);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        body.dark-mode .editor-container {
+            background-color: var(--tab-active-dark);
+            border: 1px solid var(--border-dark);
+            border-top: none;
+        }
+
+        .editor-container.active {
+            display: block;
+        }
+
         textarea {
             width: 100%;
-            height: 200px;
-            border: none;
+            height: 300px;
+            border: 1px solid var(--border-light);
             outline: none;
-            resize: none;
-            padding: 10px;
+            resize: vertical;
+            padding: 15px;
             font-size: 14px;
-            background: #f9f9f9;
-            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            background: var(--editor-bg-light);
+            border-radius: 8px;
         }
+
+        body.dark-mode textarea {
+            background: var(--editor-bg-dark);
+            color: var(--text-dark);
+            border: 1px solid var(--border-dark);
+        }
+
         .buttons {
             margin-top: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        button {
-            background: #007bff;
-            color: white;
+
+        .btn {
             border: none;
             padding: 10px 20px;
-            margin: 5px;
             cursor: pointer;
             font-size: 16px;
-            border-radius: 5px;
-            transition: background 0.3s;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        button:hover {
-            background: #0056b3;
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
         }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c20420;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(217, 4, 41, 0.3);
+        }
+
         .preview {
             display: none;
             position: fixed;
-            top: 10%;
-            left: 10%;
-            width: 80%;
-            height: 80%;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
-            padding: 10px;
-            overflow: hidden;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
         }
+
+        .preview-content {
+            width: 90%;
+            height: 90%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-mode .preview-content {
+            background: var(--bg-dark);
+        }
+
         .preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background: #007bff;
+            padding: 15px 20px;
+            background: var(--primary-color);
             color: white;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
         }
+
         .close-btn {
             cursor: pointer;
             font-size: 20px;
-            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
         }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100% - 66px);
+            border: none;
+            background: white;
+        }
+
+        body.dark-mode iframe {
+            background: white; /* Always keep iframe background white for content visibility */
+        }
+
         @media (max-width: 768px) {
-            .editor-container {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex-grow: 1;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .buttons {
                 flex-direction: column;
+                gap: 10px;
+            }
+            
+            .buttons .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 style="text-align: center; margin-bottom: 20px;">محرر أكواد تفاعلي</h2>
-        <div class="editor-container">
-            <div class="editor">
-                <h3>HTML</h3>
-                <textarea id="html-code"></textarea>
-            </div>
-            <div class="editor">
-                <h3>CSS</h3>
-                <textarea id="css-code"></textarea>
-            </div>
-            <div class="editor">
-                <h3>JavaScript</h3>
-                <textarea id="js-code"></textarea>
+        <div class="header">
+            <h2 class="title">محرر أكواد تفاعلي</h2>
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+                <span>الوضع الليلي</span>
             </div>
         </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(0, event)">
+                <i class="fab fa-html5 tab-icon" style="color: #e34c26;"></i>
+                <span>HTML</span>
+                <i class="fas fa-trash delete-btn" onclick="clearEditor('html-code')"></i>
+            </div>
+            <div class="tab" onclick="switchTab(1, event)">
+                <i class="fab fa-css3-alt tab-icon" style="color: #264de4;"></i>
+                <span>CSS</span>
+                <i class="fas fa-trash delete-btn" onclick="clearEditor('css-code')"></i>
+            </div>
+            <div class="tab" onclick="switchTab(2, event)">
+                <i class="fab fa-js tab-icon" style="color: #f7df1e;"></i>
+                <span>JavaScript</span>
+                <i class="fas fa-trash delete-btn" onclick="clearEditor('js-code')"></i>
+            </div>
+        </div>
+
+        <div class="editor-container active">
+            <textarea id="html-code" placeholder="اكتب كود HTML هنا..."></textarea>
+        </div>
+        
+        <div class="editor-container">
+            <textarea id="css-code" placeholder="اكتب كود CSS هنا..."></textarea>
+        </div>
+        
+        <div class="editor-container">
+            <textarea id="js-code" placeholder="اكتب كود JavaScript هنا..."></textarea>
+        </div>
+
         <div class="buttons">
-            <button onclick="runCode()">تشغيل الكود</button>
+            <button class="btn btn-primary" onclick="runCode()">
+                <i class="fas fa-play"></i>
+                <span>تشغيل الكود</span>
+            </button>
+            <button class="btn btn-danger" onclick="clearAllCode()">
+                <i class="fas fa-trash-alt"></i>
+                <span>حذف جميع الأكواد</span>
+            </button>
         </div>
     </div>
     
     <div class="preview" id="preview-box">
-        <div class="preview-header">
-            <span>المعاينة</span>
-            <span class="close-btn" onclick="closePreview()">&times;</span>
+        <div class="preview-content">
+            <div class="preview-header">
+                <span>معاينة الكود</span>
+                <span class="close-btn" onclick="closePreview()">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            <iframe id="output-frame"></iframe>
         </div>
-        <iframe id="output-frame" style="width:100%; height:90%; border:none;"></iframe>
     </div>
     
     <script>
+        // تبديل الوضع المظلم
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            const icon = themeToggle.querySelector('i');
+            const text = themeToggle.querySelector('span');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                text.textContent = 'الوضع الليلي';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                text.textContent = 'الوضع النهاري';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // استعادة إعدادات الوضع السابق
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.querySelector('.theme-toggle');
+            const icon = themeToggle.querySelector('i');
+            const text = themeToggle.querySelector('span');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                text.textContent = 'الوضع النهاري';
+            }
+        }
+
+        // تبديل بين علامات التبويب
+        function switchTab(tabIndex, event) {
+            // منع تشغيل عند النقر على زر الحذف
+            if (event && event.target.classList.contains('delete-btn')) {
+                return;
+            }
+            
+            const tabs = document.querySelectorAll('.tab');
+            const editorContainers = document.querySelectorAll('.editor-container');
+            
+            // إزالة الفئة النشطة من جميع علامات التبويب والمحررات
+            tabs.forEach(tab => tab.classList.remove('active'));
+            editorContainers.forEach(container => container.classList.remove('active'));
+            
+            // إضافة الفئة النشطة إلى علامة التبويب والمحرر المناسب
+            tabs[tabIndex].classList.add('active');
+            editorContainers[tabIndex].classList.add('active');
+        }
+
+        // تشغيل الكود
         function runCode() {
             let html = document.getElementById("html-code").value;
             let css = "<style>" + document.getElementById("css-code").value + "</style>";
             let js = "<script>" + document.getElementById("js-code").value + "</" + "script>";
+            
+            // فتح نافذة المعاينة
+            document.getElementById("preview-box").style.display = "flex";
+            
+            // تحديث محتوى الإطار
             let previewFrame = document.getElementById("output-frame");
             previewFrame.contentDocument.open();
             previewFrame.contentDocument.write(html + css + js);
             previewFrame.contentDocument.close();
-            document.getElementById("preview-box").style.display = "block";
         }
         
+        // إغلاق نافذة المعاينة
         function closePreview() {
             document.getElementById("preview-box").style.display = "none";
         }
+
+        // حذف محتوى محرر معين
+        function clearEditor(editorId) {
+            event.stopPropagation(); // منع انتشار الحدث إلى عناصر الأب
+            document.getElementById(editorId).value = '';
+        }
+
+        // حذف جميع الأكواد
+        function clearAllCode() {
+            document.getElementById("html-code").value = '';
+            document.getElementById("css-code").value = '';
+            document.getElementById("js-code").value = '';
+        }
+
+        // تحميل التفضيلات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', loadThemePreference);
     </script>
 </body>
 </html>
